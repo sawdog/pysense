@@ -1,0 +1,11 @@
+CHANGES
+=======
+
+Forked from version 0.4.2 of the original project found here (https://github.com/scottbonline/sense)
+
+0.5.0
+-----
+- Adding support for python 3.7.0
+- Add changelog
+
+
