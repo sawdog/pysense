@@ -1,9 +1,10 @@
-import json
-import requests
 from datetime import datetime
+import json
+
+import requests
+from requests.exceptions import ReadTimeout
 from websocket import create_connection
 from websocket._exceptions import WebSocketTimeoutException
-from requests.exceptions import ReadTimeout
 
 API_URL = 'https://api.sense.com/apiservice/api/v1/'
 API_TIMEOUT = 5
@@ -218,7 +219,7 @@ if __name__ == "__main__":
     import getpass
 
     # collect authn data
-    username = raw_input("Please enter you Sense username (email address): ")
+    username = input("Please enter you Sense username (email address): ")
     password = getpass.getpass("Please enter your Sense password: ")
     sense = Senseable(username, password)
     print ("Active:", sense.active_power, "W")
