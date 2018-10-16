@@ -1,0 +1,24 @@
+package: sense
+environment: dev
+handlers:
+     date:
+         arrow_format:  "YYYY/MM/DD"
+         default_format:  "YYYY/MM/DD"
+         query_format: "YYYY-MM-DD"
+     datetime:
+         arrow_format: "YYYY/MM/DD HH:mm:ss"
+         default_format:  "%%Y/%%m/%%d %%H:%%M:%%S"
+logging:
+  name: sense
+  level: INFO
+sense:
+  account:
+    username: XXX
+    password: XXX
+  api:
+    url: https://api.sense.com/apiservice/api/v1/
+    timeout: 5
+  realtime:
+    url: wss://clientrt.sense.com/monitors/%%s/realtimefeed?access_token=%%s
+websocket:
+  timeout: 5

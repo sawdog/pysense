@@ -1,45 +1,36 @@
-# sense_api
+# pySense 
 Sense Energy Monitor API Interface [WIP]
 
-Systematic access to the Sense monitor data. Exploratory work on pulling data from Sense
+Systematic access to the Sense monitor data. 
+Exploratory work on pulling data from Sense
 to be used in other tools - Smartthings, ActiveTiles, etc. 
 
 Python version based on the work done here in Powershell:
 https://gist.github.com/mbrownnycnyc/db3209a1045746f5e287ea6b6631e19c
 
 ### Contributors
-
-Feel free to fork and PR! 
-
-https://github.com/kbickar
+This is a fork of: https://github.com/kbickar
 
 ### Todo
 
+- Continue expand on the CLI:
+  - ensure entry_point is functional
+- Make YML path more configurable: check ENV first, then
+  path we'll be using in doker, then lastly, the package
 - Add POST/PUT where/if applicable
-- CLI
 - Improved error handling
 
 
 ### Install
 
 ```
-pip install sense_energy
+pip install git+https://github.com/sawdog/sense.git
 ```
+
+
+### Setup YML Config
 
 ### Example Usage:
 ```
-(pyvienv)  ~/code/sense/sense_energy   stable ●  python sense_api.py
-Please enter you Sense username (email address): 
-Please enter your Sense password:
-('Active:', 2917.29736328125, 'W')
-('Active Solar:', 0, 'W')
-('Active Devices:', u'Other, Always On')
+python cli.py devices --active
 ```
-
-There are plenty of methods for you to call so modify however you see fit
-
-If using the API to log data, you should only create one instance of Senseable and 
-then reuse that to get the updated stats.  Creating the instance authenticates 
-with the Sense API which should only be once every 15-20 minutes at most.  
-Calling the `update_trend_data()` function will update all the trend stats 
-and `get_realtime()` will retrieve the latest real time stats.

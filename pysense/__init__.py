@@ -1,3 +1,2 @@
-from .sense_api import *
-
-__version__ = "0.4.2"
+# a package
+__version__ = "0.6.0"

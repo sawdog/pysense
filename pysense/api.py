@@ -3,12 +3,18 @@ import json
 
 import requests
 from requests.exceptions import ReadTimeout
+
 from websocket import create_connection
 from websocket._exceptions import WebSocketTimeoutException
 
-API_URL = 'https://api.sense.com/apiservice/api/v1/'
-API_TIMEOUT = 5
-WSS_TIMEOUT = 5
+from pysense.yamlcfg import yamlcfg
+
+API_URL = yamlcfg.sense.api.url
+API_TIMEOUT = yamlcfg.sense.api.timeout
+REALTIME_URL = yamlcfg.sense.realtime.url
+WSS_TIMEOUT = yamlcfg.websocket.timeout
+USERNAME = yamlcfg.sense.account.username
+PASSWORD = yamlcfg.sense.account.password
 
 # for the last hour, day, week, month, or year
 valid_scales = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
@@ -16,9 +22,22 @@ valid_scales = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
 class SenseAPITimeoutException(Exception):
     pass
 
-class Senseable(object):
+class SenseMonitor(object):
 
-    def __init__(self, username, password, api_timeout=API_TIMEOUT, wss_timeout=WSS_TIMEOUT):
+    __username__ = None
+    __password__ = None
+    _realtime_ = None
+    _devices_ = None
+    _trend_data_ = None
+
+    def __init__(self, username=None,
+                 password=None,
+                 api_timeout=API_TIMEOUT,
+                 wss_timeout=WSS_TIMEOUT):
+        if username is None:
+            username = USERNAME
+        if password is None:
+            password = PASSWORD
         auth_data = {
             "email": username,
             "password": password
@@ -30,39 +49,49 @@ class Senseable(object):
 
         # Create session
         self.s = requests.session()
-        self._realtime = None
-        self._devices = []
-        self._trend_data = {}
-        for scale in valid_scales: self._trend_data[scale] = {}
+        self._trend_data_ = {}
+        for scale in valid_scales: self._trend_data_[scale] = {}
 
         # Get auth token
         try:
-            response = self.s.post(API_URL+'authenticate', auth_data, timeout=self.api_timeout)
+            response = self.s.post(API_URL+'authenticate',
+                                   auth_data,
+                                   timeout=self.api_timeout)
         except Exception as e:
             raise Exception('Connection failure: %s' % e)
 
         # check for 200 return
         if response.status_code != 200:
-            raise Exception("Please check username and password. API Return Code: %s" % response.status_code)
+            raise Exception("Please check username and password."
+                            " API Return Code: %s" % response.status_code)
 
         # Build out some common variables
-        self.sense_access_token = response.json()['access_token']
-        self.sense_user_id = response.json()['user_id']
-        self.sense_monitor_id = response.json()['monitors'][0]['id']
+        json = response.json()
+        self.sense_access_token = json['access_token']
+        self.account_id = json['account_id']
+        self.user_id = json['user_id']
+        self.monitor_id = json['monitors'][0]['id']
+        self.monitor = json['monitors'][0]
+        self.date_created = json['date_created']
 
         # create the auth header
-        self.headers = {'Authorization': 'bearer {}'.format(self.sense_access_token)}
+        self.headers = {'Authorization': 'bearer {}'.
+            format(self.sense_access_token)}
 
     @property
     def devices(self):
         """Return devices."""
-        return self._devices
+        if self._devices_ is None:
+            self._devices_ = self.get_discovered_device_names()
+
+        return self._devices_
 
     def get_realtime(self):
         try:
-            ws = create_connection("wss://clientrt.sense.com/monitors/%s/realtimefeed?access_token=%s" %
-                                   (self.sense_monitor_id, self.sense_access_token),
+            ws = create_connection(REALTIME_URL % (self.monitor_id,
+                                                   self.sense_access_token),
                                    timeout=self.wss_timeout)
+
             for i in range(5): # hello, features, [updates,] data
                 result = json.loads(ws.recv())
                 if result.get('type') == 'realtime_update':
@@ -148,9 +177,9 @@ class Senseable(object):
 
     def get_trend(self, scale, is_production):
         key = "production" if is_production else "consumption"
-        if not self._trend_data[scale]: self.get_trend_data(scale)         
-        if key not in self._trend_data[scale]: return 0
-        total = self._trend_data[scale][key].get('total', 0)
+        if not self._trend_data_[scale]: self.get_trend_data(scale)
+        if key not in self._trend_data_[scale]: return 0
+        total = self._trend_data_[scale][key].get('total', 0)
         if scale == 'WEEK' or scale == 'MONTH':
             return total + self.get_trend('DAY', is_production)
         if scale == 'YEAR':
@@ -160,38 +189,38 @@ class Senseable(object):
     def get_discovered_device_names(self):
         # lots more info in here to be parsed out
         response = self.api_call('app/monitors/%s/devices' %
-                                 self.sense_monitor_id)
-        self._devices = [entry['name'] for entry in response.json()]
-        return self._devices
+                                 self.monitor_id)
+        self._devices_ = [entry['name'] for entry in response.json()]
+        return self._devices_
 
     def get_discovered_device_data(self):
         response = self.api_call('monitors/%s/devices' %
-                                 self.sense_monitor_id)
+                                 self.monitor_id)
         return response.json()
 
     def always_on_info(self):
         # Always on info - pretty generic similar to the web page
         response = self.api_call('app/monitors/%s/devices/always_on' %
-                                 self.sense_monitor_id)
+                                 self.monitor_id)
         return response.json()
 
     def get_monitor_info(self):
         # View info on your monitor & device detection status
         response = self.api_call('app/monitors/%s/status' %
-                                 self.sense_monitor_id)
+                                 self.monitor_id)
         return response.json()
 
     def get_device_info(self, device_id):
         # Get specific informaton about a device
         response = self.api_call('app/monitors/%s/devices/%s' %
-                                 (self.sense_monitor_id, device_id))
+                                 (self.monitor_id, device_id))
         return response.json()
 
     def get_notification_preferences(self):
         # Get notification preferences
-        payload = {'monitor_id': '%s' % self.sense_monitor_id}
+        payload = {'monitor_id': '%s' % self.monitor_id}
         response = self.api_call('users/%s/notifications' %
-                                 self.sense_user_id, payload)
+                                 self.user_id, payload)
         return response.json()
     
     def get_trend_data(self, scale):
@@ -199,31 +228,19 @@ class Senseable(object):
             raise Exception("%s not a valid scale" % scale)
         t = datetime.now().replace(hour=12)
         response = self.api_call('app/history/trends?monitor_id=%s&scale=%s&start=%s' %
-                                 (self.sense_monitor_id, scale, t.isoformat()))
-        self._trend_data[scale] = response.json()
+                                 (self.monitor_id, scale, t.isoformat()))
+        self._trend_data_[scale] = response.json()
 
     def update_trend_data(self):
         for scale in valid_scales:
-            self.get_trend_data(scale)
+            self.get_trend_data_(scale)
 
     def get_all_usage_data(self):
         payload = {'n_items': 30}
         # lots of info in here to be parsed out
         response = self.s.get('users/%s/timeline' %
-                              self.sense_user_id, payload)
+                              self.user_id, payload)
         return response.json()
 
 
-if __name__ == "__main__":
-    import pprint
-    import getpass
 
-    # collect authn data
-    username = input("Please enter you Sense username (email address): ")
-    password = getpass.getpass("Please enter your Sense password: ")
-    sense = Senseable(username, password)
-    print ("Active:", sense.active_power, "W")
-    print ("Active Solar:", sense.active_solar_power, "W")
-    print ("Active Devices:", ", ".join(sense.active_devices))
-    print ("Active Voltage:", sense.active_voltage, "V")
-    print ("Active Frequency:", sense.active_frequency, "Hz")
