@@ -1,19 +1,20 @@
 # pySense 
-Sense Energy Monitor API Interface [WIP]
+Sense Energy Monitor API
 
-Systematic access to the Sense monitor data. 
+
+API access to the Sense monitor data. 
 Exploratory work on pulling data from Sense
 to be used in other tools - Smartthings, ActiveTiles, etc. 
 
-Python version based on the work done here in Powershell:
+This is a Python 3.7 implementation based on the work done here in Powershell:
 https://gist.github.com/mbrownnycnyc/db3209a1045746f5e287ea6b6631e19c
 
 ### Contributors
-This is a fork of: https://github.com/kbickar
+This is now a fork of (https://github.com/kbickar) a fork (https://github.com/sscottbonline/sense)
 
 ### Todo
 
-- Continue expand on the CLI:
+- Continue the development of a fully functional CLI for accessing the APIs:
   - ensure entry_point is functional
 - Make YML path more configurable: check ENV first, then
   path we'll be using in doker, then lastly, the package
@@ -24,7 +25,7 @@ This is a fork of: https://github.com/kbickar
 ### Install
 
 ```
-pip install git+https://github.com/sawdog/sense.git
+pip install git+https://github.com/sawdog/pysense.git
 ```
 
 
