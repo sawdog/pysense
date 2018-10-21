@@ -24,6 +24,6 @@ setup(
     classifiers = [],
     entry_points='''
         [console_scripts]
-        sensecli=cli:cli
+        sensecli=pysense.cli:cli
     ''',
 )
