@@ -1,25 +1,23 @@
-import os
-import pymlconf
+import confuse
 
-# there are a couple checks in place to look for the package yml file before
-# looking at what's expected to be part of the dev package.  First a check
-# for PACKAGENAME_YML_PATH in the environment.
-# Second /etc/pyre/package.yml and then package/etc/pyre.conf
-#
-YML_FILE = 'sense.yml'
-ENV_PATH = 'SENSE_YML_PATH'
-YAML_PATH = '/app/'
 
-# grab the yaml config
-if os.getenv(ENV_PATH)is not None:
-    yaml_path = os.getenv(ENV_PATH)
-elif os.path.isfile(os.path.join(YAML_PATH, YML_FILE)):
-        yaml_path = YAML_PATH
-else:
-    here = os.path.abspath(os.path.dirname(__file__))
-    yaml_path = os.path.join(here, 'etc')
+config = confuse.LazyConfig('pySense', __name__)
+template = {
+    'sense': {
+        'username': str,
+        'password': str,
+        'api': {
+            'url': str,
+            'timeout': int,
+        },
+        'realtime': {
+            'url': str,
+        },
+    },
+    'websocket': {
+        'timeout': int,
+    }
+}
 
-pkg_yaml = os.path.join(yaml_path, YML_FILE)
 
-yamlcfg = pymlconf.Root()
-yamlcfg.load_file(pkg_yaml)
+yamlcfg = config.get(template)

@@ -8,11 +8,11 @@ setup(
     packages = ['pysense'], 
     install_requires=[
         'click',
-        'pymlconf',
+        'confuse',
         'requests',
         'websocket-client',
     ],
-    version = '0.6.0',
+    version = '0.7.0',
     description = 'API for the Sense Energy Monitor, forked from the sense project by scottbonline/sense',
     long_description=long_description,
     long_description_content_type="text/markdown",

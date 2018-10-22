@@ -7,14 +7,14 @@ from requests.exceptions import ReadTimeout
 from websocket import create_connection
 from websocket._exceptions import WebSocketTimeoutException
 
-from pysense.yamlcfg import yamlcfg
+from pysense import config
 
-API_URL = yamlcfg.sense.api.url
-API_TIMEOUT = yamlcfg.sense.api.timeout
-REALTIME_URL = yamlcfg.sense.realtime.url
-WSS_TIMEOUT = yamlcfg.websocket.timeout
-USERNAME = yamlcfg.sense.account.username
-PASSWORD = yamlcfg.sense.account.password
+API_URL = config.sense.api.url
+API_TIMEOUT = config.sense.api.timeout
+REALTIME_URL = config.sense.realtime.url
+WSS_TIMEOUT = config.websocket.timeout
+USERNAME = config.sense.username
+PASSWORD = config.sense.password
 
 # for the last hour, day, week, month, or year
 valid_scales = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
@@ -95,8 +95,8 @@ class SenseMonitor(object):
             for i in range(5): # hello, features, [updates,] data
                 result = json.loads(ws.recv())
                 if result.get('type') == 'realtime_update':
-                    self._realtime = result['payload']
-                    return self._realtime
+                    self._realtime_ = result['payload']
+                    return self._realtime_
         except WebSocketTimeoutException:
             raise SenseAPITimeoutException("API websocket timed out")
         finally:
@@ -110,27 +110,32 @@ class SenseMonitor(object):
                               data=payload)
         except ReadTimeout:
             raise SenseAPITimeoutException("API call timed out")
-        
+
+    @property
+    def realtime(self):
+        if not self._realtime_:
+            return self.get_realtime()
+        return self._realtime_
 
     @property
     def active_power(self):
-        if not self._realtime: self.get_realtime()
-        return self._realtime.get('w', 0)
+        if not self.realtime: self.get_realtime()
+        return self.realtime.get('w', 0)
 
     @property
     def active_solar_power(self):
-        if not self._realtime: self.get_realtime()
-        return self._realtime.get('solar_w', 0)
+        if not self.realtime: self.get_realtime()
+        return self.realtime.get('solar_w', 0)
 
     @property
     def active_voltage(self):
-        if not self._realtime: self.get_realtime()
-        return self._realtime.get('voltage', 0)
+        if not self.realtime: self.get_realtime()
+        return self.realtime.get('voltage', 0)
     
     @property
     def active_frequency(self):
-        if not self._realtime: self.get_realtime()
-        return self._realtime.get('hz', 0)
+        if not self.realtime: self.get_realtime()
+        return self.realtime.get('hz', 0)
     
     @property
     def daily_usage(self):
@@ -172,8 +177,8 @@ class SenseMonitor(object):
 
     @property
     def active_devices(self):
-        if not self._realtime: self.get_realtime()
-        return [d['name'] for d in self._realtime.get('devices', {})]
+        if not self.realtime: self.get_realtime()
+        return [d['name'] for d in self.realtime.get('devices', {})]
 
     def get_trend(self, scale, is_production):
         key = "production" if is_production else "consumption"

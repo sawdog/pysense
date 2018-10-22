@@ -12,13 +12,12 @@ logging:
   name: sense
   level: INFO
 sense:
-  account:
-    username: XXX
-    password: XXX
+  username: None
+  password: None
   api:
     url: https://api.sense.com/apiservice/api/v1/
     timeout: 5
   realtime:
-    url: wss://clientrt.sense.com/monitors/%%s/realtimefeed?access_token=%%s
+    url: wss://clientrt.sense.com/monitors/%s/realtimefeed?access_token=%s
 websocket:
   timeout: 5

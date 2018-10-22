@@ -1,7 +1,13 @@
 CHANGES
 =======
-
 Forked from version 0.4.2 of the original project found here (https://github.com/scottbonline/sense)
+0.7.0
+-----
+- replace pymlconf with the confuse library
+- add realtime property to the api
+- use _<<name>>_ pattern for naming of non-private variable names in api
+- add template with requirements for a user supplied config
+- update to use new configuration library
 
 0.6.0
 -----
