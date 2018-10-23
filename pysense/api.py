@@ -19,8 +19,10 @@ PASSWORD = config.sense.password
 # for the last hour, day, week, month, or year
 valid_scales = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
 
+
 class SenseAPITimeoutException(Exception):
     pass
+
 
 class SenseMonitor(object):
 
@@ -50,7 +52,8 @@ class SenseMonitor(object):
         # Create session
         self.s = requests.session()
         self._trend_data_ = {}
-        for scale in valid_scales: self._trend_data_[scale] = {}
+        for scale in valid_scales:
+            self._trend_data_[scale] = {}
 
         # Get auth token
         try:
@@ -75,8 +78,8 @@ class SenseMonitor(object):
         self.date_created = json['date_created']
 
         # create the auth header
-        self.headers = {'Authorization': 'bearer {}'.
-            format(self.sense_access_token)}
+        self.headers = {'Authorization': 'bearer {}'
+                        .format(self.sense_access_token)}
 
     @property
     def devices(self):
@@ -92,7 +95,7 @@ class SenseMonitor(object):
                                                    self.sense_access_token),
                                    timeout=self.wss_timeout)
 
-            for i in range(5): # hello, features, [updates,] data
+            for i in range(5):  # hello, features, [updates,] data
                 result = json.loads(ws.recv())
                 if result.get('type') == 'realtime_update':
                     self._realtime_ = result['payload']
@@ -100,9 +103,12 @@ class SenseMonitor(object):
         except WebSocketTimeoutException:
             raise SenseAPITimeoutException("API websocket timed out")
         finally:
-            if ws: ws.close()
+            if ws:
+                ws.close()
 
-    def api_call(self, url, payload={}):
+    def api_call(self, url, payload=None):
+        if payload is None:
+            payload = {}
         try:
             return self.s.get(API_URL + url,
                               headers=self.headers,
@@ -119,22 +125,26 @@ class SenseMonitor(object):
 
     @property
     def active_power(self):
-        if not self.realtime: self.get_realtime()
+        if not self.realtime:
+            self.get_realtime()
         return self.realtime.get('w', 0)
 
     @property
     def active_solar_power(self):
-        if not self.realtime: self.get_realtime()
+        if not self.realtime:
+            self.get_realtime()
         return self.realtime.get('solar_w', 0)
 
     @property
     def active_voltage(self):
-        if not self.realtime: self.get_realtime()
+        if not self.realtime:
+            self.get_realtime()
         return self.realtime.get('voltage', 0)
     
     @property
     def active_frequency(self):
-        if not self.realtime: self.get_realtime()
+        if not self.realtime:
+            self.get_realtime()
         return self.realtime.get('hz', 0)
     
     @property
@@ -171,19 +181,22 @@ class SenseMonitor(object):
         return self.get_trend('YEAR', False)
 
     @property
-    def yeary_production(self):
+    def yearly_production(self):
         # Add this month's production
         return self.get_trend('YEAR', True)
 
     @property
     def active_devices(self):
-        if not self.realtime: self.get_realtime()
+        if not self.realtime:
+            self.get_realtime()
         return [d['name'] for d in self.realtime.get('devices', {})]
 
     def get_trend(self, scale, is_production):
         key = "production" if is_production else "consumption"
-        if not self._trend_data_[scale]: self.get_trend_data(scale)
-        if key not in self._trend_data_[scale]: return 0
+        if not self._trend_data_[scale]:
+            self.get_trend_data(scale)
+        if key not in self._trend_data_[scale]:
+            return 0
         total = self._trend_data_[scale][key].get('total', 0)
         if scale == 'WEEK' or scale == 'MONTH':
             return total + self.get_trend('DAY', is_production)
@@ -216,7 +229,7 @@ class SenseMonitor(object):
         return response.json()
 
     def get_device_info(self, device_id):
-        # Get specific informaton about a device
+        # Get specific information about a device
         response = self.api_call('app/monitors/%s/devices/%s' %
                                  (self.monitor_id, device_id))
         return response.json()
@@ -238,7 +251,7 @@ class SenseMonitor(object):
 
     def update_trend_data(self):
         for scale in valid_scales:
-            self.get_trend_data_(scale)
+            self.get_trend_data(scale)
 
     def get_all_usage_data(self):
         payload = {'n_items': 30}

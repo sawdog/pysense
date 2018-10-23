@@ -88,6 +88,14 @@ def active_frequency(sensecli):
     click.echo(api.active_frequency)
 
 
+@cli.command('usage_data')
+@click.pass_obj
+def usage_data(sensecli):
+    """return all the usage data
+    """
+    api = sensecli.api
+    click.echo(api.get_all_usage_data)
+
 
 @cli.command('production')
 @click.option('--daily', 'period', flag_value='daily', default=True,
