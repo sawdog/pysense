@@ -1,4 +1,4 @@
-package: sense
+package: pysense
 environment: dev
 handlers:
      date:
@@ -9,8 +9,9 @@ handlers:
          arrow_format: "YYYY/MM/DD HH:mm:ss"
          default_format:  "%%Y/%%m/%%d %%H:%%M:%%S"
 logging:
-  name: sense
+  name: pysense
   level: INFO
+  propigate: False
 sense:
   username: None
   password: None
@@ -19,5 +20,8 @@ sense:
     timeout: 5
   realtime:
     url: wss://clientrt.sense.com/monitors/%s/realtimefeed?access_token=%s
+sentry:
+  enable: True
+  dsn:  https://0fc969d48fa04a04a914ba0c4f8172e1@sentry.io/1304672
 websocket:
   timeout: 5

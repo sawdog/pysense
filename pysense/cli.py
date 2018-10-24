@@ -1,6 +1,8 @@
 import click
 
 from pysense import api
+from pysense import utils
+
 import versioneer
 
 
@@ -30,11 +32,25 @@ def print_version(ctx, param, value):
 @click.group(context_settings=CONTEXT_SETTINGS,
              chain=True,
              invoke_without_command=True)
-@click.option('--version', is_flag=True, callback=print_version,
-              expose_value=False, is_eager=True)
+@click.option('--version', '-v',
+              is_flag=True,
+              callback=print_version,
+              expose_value=False,
+              is_eager=True)
 @click.pass_context
 def cli(ctx):
     ctx.obj = SenseCLI()
+
+
+@cli.command('config')
+@click.option('-e', '--edit',
+              is_flag=True,
+              help='edit the user configuration file')
+@click.pass_obj
+def cfg(sensecli, edit=False):
+    """Edit the users' configuratoin file"""
+    if edit:
+        utils.edit_config()
 
 
 @cli.command('devices')
@@ -43,6 +59,7 @@ def cli(ctx):
                    'are currently active.')
 @click.pass_obj
 def devices(sensecli, active):
+    """return the list of active device names or all devices' names"""
     api = sensecli.api
     if active:
         devices = api.active_devices
@@ -50,6 +67,32 @@ def devices(sensecli, active):
         devices = api.devices
 
     click.echo(devices)
+
+
+@cli.command('realtime')
+@click.option('--power', 'power', flag_value='w', default=True,
+              help='energy consumed in watts')
+@click.option('--solar', 'solar', flag_value='solar_w',
+              help='solar power produced in watts')
+@click.option('--frequency', 'frequency', flag_value='hz',
+              help='frequency in hz')
+@click.option('--voltage', 'voltage', flag_value='voltage',
+              help='energy consumed in volts')
+@click.pass_obj
+def active(sensecli, **kw):
+    """obtain the realtime values all active devices energy profile:
+
+       power, frequency, voltage, or production via solar
+    """
+    api = sensecli.api
+    for k,v in kw.items():
+        ldr = k + ': %s'
+        data = api.active(v)
+        msg = ldr % data
+        if data is not None:
+            msg = msg + ' ' + v
+
+        click.echo(msg, color='blue')
 
 
 @cli.command('active_power')
@@ -88,31 +131,48 @@ def active_frequency(sensecli):
     click.echo(api.active_frequency)
 
 
+@cli.command('devices_map')
+@click.pass_obj
+def devices_map(sensecli):
+    """return device mapping for all for discovered devices
+
+       todo: merge with devices above and it can add an optional argument:
+        --mappining
+
+       to return the device mapping of active and all devices.
+
+       XXX a good candidate for cacheing
+
+       todo: Add nice formatter if to display the mapping data
+
+    """
+    api = sensecli.api
+    click.echo(api.devices_map())
+
+
 @cli.command('usage_data')
 @click.pass_obj
 def usage_data(sensecli):
     """return all the usage data
     """
     api = sensecli.api
-    click.echo(api.get_all_usage_data)
-
+    click.echo(api.get_all_usage_data())
 
 @cli.command('production')
 @click.option('--daily', 'period', flag_value='daily', default=True,
-              help='Pass --daily to display the daily utilization')
+              help='to display the daily utilization')
 @click.option('--weekly', 'period', flag_value='weekly',
-              help='Pass --weekly to display the weekly utilization')
+              help='to display the weekly utilization')
 @click.option('--monthly', 'period', flag_value='monthly',
-              help='Pass --monthly to display the monthly utilization')
+              help='to display the monthly utilization')
 @click.option('--yearly', 'period', flag_value='yearly',
-              help='Pass --yearly to display the yearly utilization')
+              help='to display the yearly utilization')
 @click.pass_obj
 def production(sensecli, period):
     if sensecli.usage:
-        raise 'Foo'
+        raise click.UsageError('You cannot use the production and usage '
+                               'commands at the same time.')
     sensecli.production = True
-
-
     attr = 'production'
     api = sensecli.api
     value = getattr(api, period + '_' + attr)
@@ -129,12 +189,12 @@ def production(sensecli, period):
 @click.option('--yearly', 'period', flag_value='yearly',
               help='Pass --yearly to display the yearly consumption')
 @click.pass_obj
-def trend(sensecli, period):
+def usage(sensecli, period):
     """return the usage trend for the supplied period"""
-    if sensecli.usage:
-        raise 'Foo'
-    sensecli.production = True
-
+    if sensecli.production:
+        raise click.UsageError('You cannot use the production and usage '
+                               'commands at the same time.')
+    sensecli.usage = True
     attr = 'usage'
     api = sensecli.api
     value = getattr(api, period + '_' + attr)
