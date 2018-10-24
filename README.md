@@ -28,13 +28,17 @@ by sscottbonline. Since appears to lost it's mainter, I've forked it here.
 
 ### Todo
 
+- rewrite api.py to reduce boilerplate with fetching the Trend data. Moving to 
+  an object model will simplify tha interface.
 - Continue the development of a fully functional CLI for accessing the APIs:
-  - ensure entry_point is functional
-- Make configuration more flexible: Adding Confuse as the yaml configuration
-  package.
+  - ensure entry_points are functional
 - Add POST/PUT where/if applicable
 - Improved error handling
-- Adding Sentry configuration
+
+#### Completed Todo Items
+- Make configuration more flexible: Adding Confuse as the yaml configuration
+  package. (0.6.0)
+- Adding Sentry configuration (0.7.0)
 
 
 ### Install
@@ -47,7 +51,10 @@ pip install git+https://github.com/sawdog/pysense.git
 ### Setup YAML Config
 
 The configuration uses the standard system config path for the user customized
-configuration.
+configuration. To edit your user configuration run (ensure ENV is setup with 
+EDITOR, GIT_EDITOR or SVN_EDITOR):
+
+> sensecli config -e
 
 The default search paths for each platform:
 

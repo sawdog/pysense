@@ -7,14 +7,14 @@ from requests.exceptions import ReadTimeout
 from websocket import create_connection
 from websocket._exceptions import WebSocketTimeoutException
 
-from pysense import config
+from pysense.config import yamlcfg
 
-API_URL = config.sense.api.url
-API_TIMEOUT = config.sense.api.timeout
-REALTIME_URL = config.sense.realtime.url
-WSS_TIMEOUT = config.websocket.timeout
-USERNAME = config.sense.username
-PASSWORD = config.sense.password
+API_URL = yamlcfg.sense.api.url
+API_TIMEOUT = yamlcfg.sense.api.timeout
+REALTIME_URL = yamlcfg.sense.realtime.url
+WSS_TIMEOUT = yamlcfg.websocket.timeout
+USERNAME = yamlcfg.sense.username
+PASSWORD = yamlcfg.sense.password
 
 # for the last hour, day, week, month, or year
 valid_scales = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
@@ -120,31 +120,43 @@ class SenseMonitor(object):
     @property
     def realtime(self):
         if not self._realtime_:
-            return self.get_realtime()
+            self.get_realtime()
         return self._realtime_
+
+
+    def _active_(self, item):
+        """Return the current active value from the realtime stream
+
+        :param item: string
+        :return: string or int
+
+        """
+        return self.realtime.get(item)
+
+
+    def active(self, item):
+        """Return the current active value from the realtime stream
+
+        :param item: string
+        :return: string or int
+
+        """
+        return self._active_(item)
 
     @property
     def active_power(self):
-        if not self.realtime:
-            self.get_realtime()
         return self.realtime.get('w', 0)
 
     @property
     def active_solar_power(self):
-        if not self.realtime:
-            self.get_realtime()
         return self.realtime.get('solar_w', 0)
 
     @property
     def active_voltage(self):
-        if not self.realtime:
-            self.get_realtime()
         return self.realtime.get('voltage', 0)
     
     @property
     def active_frequency(self):
-        if not self.realtime:
-            self.get_realtime()
         return self.realtime.get('hz', 0)
     
     @property
@@ -211,7 +223,7 @@ class SenseMonitor(object):
         self._devices_ = [entry['name'] for entry in response.json()]
         return self._devices_
 
-    def get_discovered_device_data(self):
+    def devices_map(self):
         response = self.api_call('monitors/%s/devices' %
                                  self.monitor_id)
         return response.json()
@@ -253,11 +265,10 @@ class SenseMonitor(object):
         for scale in valid_scales:
             self.get_trend_data(scale)
 
-    def get_all_usage_data(self):
-        payload = {'n_items': 30}
+    def get_all_usage_data(self, num=30):
+        payload = {'n_items': num}
         # lots of info in here to be parsed out
-        response = self.s.get('users/%s/timeline' %
-                              self.user_id, payload)
+        response = self.api_call('users/%s/timeline' % self.user_id, payload)
         return response.json()
 
 

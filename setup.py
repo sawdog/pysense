@@ -15,7 +15,7 @@ setup(
         'colorama',
         'confuse',
         'requests',
-        'versioneer',
+        'sentry-sdk',
         'websocket-client',
     ],
     version=versioneer.get_version(),

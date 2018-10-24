@@ -5,28 +5,47 @@ https://github.com/scottbonline/sense)
 
 0.7.0
 -----
-- add versioneer package to help reduce burden of maintaining any versioning
-  outside of VCS
-- add colorama for ANSI color in cli mode.
+Taiga Items
+***********
+
+TG-12 Add the ability to run sensecli config -e and edit the user config file
+TODO: Add default of print or cat of the config file if -e is not passed as an
+ option
+
+TG-10 fix the incorrect calling of the function.
+
+TG-4 Added sentry configuration to enable and register the sentry sdk if it had
+     been enabled. Also if for someone reason someone wanted to disable or use
+     their own DSN for sentry, that is possible as well.
+
+
+TG-7 add colorama for ANSI color in cli mode.
   todo: add configuration for thresholds and colors for displaying within cli
-- replace pymlconf with the confuse library
-- add realtime property to the api
-- use _<<name>>_ pattern for naming of non-private variable names in api
-- add template with requirements for a user supplied config
-- update to use new configuration library
-- update the readme
+
+TG-6 add versioneer package to help reduce burden of maintaining any versioning
+  outside of VCS
+
+Additional Changes
+******************
+
+  - rename config module to config
+  - import the yaml from config as yamlcfg
+  - replace pymlconf with the confuse library
+  - add realtime property to the api
+  - use _<<name>>_ pattern for naming of non-private variable names in api
+  - add template with requirements for a user supplied config
+  - update to use new configuration library
+  - update the readme
 
 0.6.0
 -----
-- refactor package, rename modules:
-    * cli.py
-    * api.py
-- add yml configuration file
-- start CLI, using click
+  - refactor package, rename modules:
+    - cli.py
+    - api.py
+  - add yml configuration file
+  - start CLI, using click
 
 0.5.0
 -----
-- Adding support for python 3.7.0
-- Add changelog
-
-
+  - Adding support for python 3.7.0
+  - Add changelog
