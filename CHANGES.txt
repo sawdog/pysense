@@ -8,6 +8,10 @@ https://github.com/scottbonline/sense)
 Taiga Items
 ***********
 
+TG-18
+  - Fix blantant styling errors in the README.md
+  - Fix patently incorrect markdown
+
 TG-15
   - Add additional config to make sentry more valuable tracking issues across
     releases.
