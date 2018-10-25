@@ -17,7 +17,7 @@ USERNAME = yamlcfg.sense.username
 PASSWORD = yamlcfg.sense.password
 
 # for the last hour, day, week, month, or year
-valid_scales = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
+trend_ranges = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
 
 
 class SenseAPITimeoutException(Exception):
@@ -52,7 +52,7 @@ class SenseMonitor(object):
         # Create session
         self.s = requests.session()
         self._trend_data_ = {}
-        for scale in valid_scales:
+        for scale in trend_ranges:
             self._trend_data_[scale] = {}
 
         # Get auth token
@@ -254,15 +254,15 @@ class SenseMonitor(object):
         return response.json()
     
     def get_trend_data(self, scale):
-        if scale.upper() not in valid_scales:
-            raise Exception("%s not a valid scale" % scale)
+        if scale.upper() not in trend_ranges:
+            raise Exception("%s not a  valid range" % scale)
         t = datetime.now().replace(hour=12)
         response = self.api_call('app/history/trends?monitor_id=%s&scale=%s&start=%s' %
                                  (self.monitor_id, scale, t.isoformat()))
         self._trend_data_[scale] = response.json()
 
     def update_trend_data(self):
-        for scale in valid_scales:
+        for scale in trend_ranges:
             self.get_trend_data(scale)
 
     def get_all_usage_data(self, num=30):

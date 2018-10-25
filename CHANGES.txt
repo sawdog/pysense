@@ -8,22 +8,30 @@ https://github.com/scottbonline/sense)
 Taiga Items
 ***********
 
-TG-12 Add the ability to run sensecli config -e and edit the user config file
-TODO: Add default of print or cat of the config file if -e is not passed as an
- option
+TG-16
+  - change 'valid_scales' variable to 'trend_ranges'; more accurately reflects
+    the var.
+TG-12
+  - Add the ability to run sensecli config -e and edit the user config file
+    TODO: Add default of print or cat of the config file if -e is not passed as
+     an option
 
-TG-10 fix the incorrect calling of the function.
+TG-10
+  - fix the incorrect calling of the function.
 
-TG-4 Added sentry configuration to enable and register the sentry sdk if it had
-     been enabled. Also if for someone reason someone wanted to disable or use
-     their own DSN for sentry, that is possible as well.
+TG-4
+  - Added sentry configuration to enable and register the sentry sdk if it had
+    been enabled. Also if for someone reason someone wanted to disable or use
+    their own DSN for sentry, that is possible as well.
 
 
-TG-7 add colorama for ANSI color in cli mode.
-  todo: add configuration for thresholds and colors for displaying within cli
+TG-7
+  - add colorama for ANSI color in cli mode.
+    todo: add configuration for thresholds and colors for displaying within cli
 
-TG-6 add versioneer package to help reduce burden of maintaining any versioning
-  outside of VCS
+TG-6
+  - add versioneer package to help reduce burden of maintaining any versioning
+    outside of VCS
 
 Additional Changes
 ******************
