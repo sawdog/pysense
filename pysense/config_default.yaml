@@ -1,5 +1,5 @@
 package: pysense
-environment: dev
+environment: production
 handlers:
      date:
          arrow_format:  "YYYY/MM/DD"

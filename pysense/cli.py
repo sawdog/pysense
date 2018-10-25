@@ -1,9 +1,8 @@
 import click
 
+from pysense import __version__
 from pysense import api
 from pysense import utils
-
-import versioneer
 
 
 class SenseCLI(object):
@@ -25,7 +24,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
-    click.echo(versioneer.get_version())
+    click.echo(__version__)
     ctx.exit()
 
 

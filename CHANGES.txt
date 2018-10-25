@@ -8,6 +8,10 @@ https://github.com/scottbonline/sense)
 Taiga Items
 ***********
 
+TG-15
+  - Add additional config to make sentry more valuable tracking issues across
+    releases.
+
 TG-14
   - Fix printing option values when they were not passed to the realtime
     command.
@@ -43,6 +47,7 @@ TG-6
 Additional Changes
 ******************
 
+  - Fix versioneer not being fully installed properly.
   - rename config module to config
   - import the yaml from config as yamlcfg
   - replace pymlconf with the confuse library

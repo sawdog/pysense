@@ -131,7 +131,6 @@ class SenseMonitor(object):
         :return: string or int
 
         """
-        import pdb; pdb.set_trace()
         return self.realtime.get(item, 0)
 
     @property

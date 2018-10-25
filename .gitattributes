@@ -1,0 +1,2 @@
+_version.py export-subst
+pysense/_version.py export-subst
