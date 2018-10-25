@@ -12,7 +12,7 @@ setup(
     install_requires=[
         'arrow',
         'click',
-        'colorama',
+        'colorama;platform_system=="Windows"',
         'confuse',
         'requests',
         'sentry-sdk',
