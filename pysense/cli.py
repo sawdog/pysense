@@ -86,13 +86,16 @@ def active(sensecli, **kw):
     """
     api = sensecli.api
     for k,v in kw.items():
+        if v is None:
+            continue
+
         ldr = k + ': %s'
         data = api.active(v)
         msg = ldr % data
         if data is not None:
             msg = msg + ' ' + v
 
-        click.echo(msg, color='blue')
+        click.echo(msg)
 
 
 @cli.command('active_power')

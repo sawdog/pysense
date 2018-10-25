@@ -124,16 +124,6 @@ class SenseMonitor(object):
         return self._realtime_
 
 
-    def _active_(self, item):
-        """Return the current active value from the realtime stream
-
-        :param item: string
-        :return: string or int
-
-        """
-        return self.realtime.get(item)
-
-
     def active(self, item):
         """Return the current active value from the realtime stream
 
@@ -141,7 +131,8 @@ class SenseMonitor(object):
         :return: string or int
 
         """
-        return self._active_(item)
+        import pdb; pdb.set_trace()
+        return self.realtime.get(item, 0)
 
     @property
     def active_power(self):

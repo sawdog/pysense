@@ -7,6 +7,11 @@ https://github.com/scottbonline/sense)
 -----
 Taiga Items
 ***********
+
+TG-14
+  - Fix printing option values when they were not passed to the realtime
+    command.
+
 TG-17
   - Add platform dependency for colorama install.
 
