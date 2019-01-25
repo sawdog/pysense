@@ -13,7 +13,7 @@ tools: e.g.
 
   * HomeAutomation
  
- and so on.  This project is written and tested in Python 3.7.0. 
+ and so on.  This project is written and tested in Python 3.7.2. 
 
 ## History
 
